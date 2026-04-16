@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPC —   Post Editörü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Lora:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #f0f2f6;
+  --panel: #ffffff;
+  --border: rgba(0,0,0,.07);
+  --accent: #4B2D7F;
+  --green: #7ed957;
+  --text: #1a1d23;
+  --muted: #6b7280;
+  --radius: 14px;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-post: 'Century Gothic', 'AppleGothic', 'Gill Sans MT', Calibri, sans-serif;
+}
+html, body { height:100%; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky; top:0; z-index:100;
+  box-shadow: 0 1px 0 var(--border);
+}
+.header-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; font-weight: 700; color: var(--text);
+}
+.header-brand .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--accent));
+}
+.header-actions { display: flex; gap: 8px; }
+.btn {
+  font-family: var(--font-ui);
+  font-size: 13px; font-weight: 600;
+  padding: 8px 18px; border-radius: 9px;
+  border: 1px solid var(--border);
+  background: #fff; color: var(--text);
+  cursor: pointer; transition: all .15s;
+}
+.btn:hover { background: #f4f5f8; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #2d1f4a);
+  color: #fff; border: none;
+}
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-primary:disabled { opacity:.5; cursor:wait; }
+
+/* ── Layout ── */
+.workspace {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── Left Panel ── */
+.panel {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.section-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+}
+.field input, .field textarea, .field select {
+  font-family: var(--font-ui);
+  font-size: 13px; color: var(--text);
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  resize: vertical;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(75,45,127,.08);
+  background: #fff;
+}
+.field textarea { min-height: 72px; }
+
+/* — image upload — */
+.img-drop {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: #f7f8fa;
+}
+.img-drop:hover, .img-drop.drag { border-color: var(--accent); background: rgba(75,45,127,.04); }
+.img-drop input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.img-drop .drop-icon {
+  width: 40px; height: 40px; margin: 0 auto 8px;
+  background: linear-gradient(135deg, var(--green), var(--accent));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-drop .drop-icon svg { width:20px; height:20px; color:#fff; }
+.img-drop p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.img-drop strong { color: var(--accent); }
+.img-thumb {
+  width:100%; height:80px; object-fit:cover;
+  border-radius:8px; margin-top:10px;
+  display:none;
+}
+
+/* — bullets — */
+.bullets-list { display:flex; flex-direction:column; gap:8px; }
+.bullet-row {
+  display:grid; grid-template-columns:1fr auto;
+  gap:6px; align-items:center;
+}
+.bullet-row input {
+  font-family: var(--font-ui);
+  font-size: 13px; color: var(--text);
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .15s;
+}
+.bullet-row input:focus { border-color: var(--accent); }
+.bullet-del {
+  width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+  border-radius:8px; border:1px solid var(--border);
+  background:#fff; cursor:pointer; color:var(--muted);
+  transition: background .15s, color .15s;
+}
+.bullet-del:hover { background:#fee2e2; color:#dc2626; border-color:#fca5a5; }
+.add-bullet {
+  font-size:12px; font-weight:600; color:var(--accent);
+  background:none; border:1px dashed rgba(75,45,127,.3);
+  padding:8px; border-radius:9px; cursor:pointer;
+  width:100%; transition: background .15s;
+}
+.add-bullet:hover { background: rgba(75,45,127,.05); }
+
+/* — color pickers — */
+.color-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.color-item {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  font-size: 10px; color: var(--muted); font-weight: 600;
+}
+.color-item input[type=color] {
+  width:36px; height:36px; border-radius:8px;
+  border: 1px solid var(--border);
+  padding:2px; cursor:pointer; background:#fff;
+}
+.divider-line { border:none; border-top:1px solid var(--border); }
+
+/* ── Preview Area ── */
+.preview-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 28px 24px;
+  overflow-y: auto;
+  gap: 16px;
+  background: var(--bg);
+}
+.preview-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted);
+}
+.canvas-scaler {
+  transform-origin: top center;
+}
+
+/* ══════════════════════════════════════
+     CANVAS — 1080×1350 (4:5)
+   ══════════════════════════════════════ */
+#li-canvas {
+  position: relative;
+  width: 1080px;
+  height: 1350px;
+  overflow: hidden;           /* taşmayı kes */
+  background-color: #0c0a14;
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  font-family: var(--font-post);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  flex-shrink: 0;
+}
+#li-canvas * { font-family: var(--font-post); }
+/* #li-bg img removed — background handled via CSS background-image on #li-canvas */
+#li-bg-placeholder {
+  position: absolute; inset:0;
+  display: flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:12px;
+  background: linear-gradient(135deg, #1a1528, #0c0a14);
+}
+#li-bg-placeholder svg { width:64px; height:64px; color:rgba(255,255,255,.12); }
+#li-bg-placeholder span { font-size:18px; color:rgba(255,255,255,.18); letter-spacing:2px; font-family: var(--font-post); }
+
+/* — scrim (varsayılan = Kurumsal Klasik) — */
+.li-scrim {
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(6,4,14,.80) 0%, rgba(6,4,14,.25) 24%, transparent 46%),
+    linear-gradient(to top, rgba(6,4,14,.90) 0%, rgba(6,4,14,.40) 30%, transparent 54%);
+}
+/* Tema: üst/alt tonlama ve yer tutucu — görsel yokken */
+#li-canvas.theme-midnight .li-scrim {
+  background:
+    linear-gradient(180deg, rgba(4,20,35,.82) 0%, rgba(4,20,35,.28) 26%, transparent 46%),
+    linear-gradient(to top, rgba(2,12,24,.92) 0%, rgba(2,12,24,.42) 30%, transparent 54%);
+}
+#li-canvas.theme-midnight #li-bg-placeholder {
+  background: linear-gradient(135deg, #0c4a6e, #061018);
+}
+#li-canvas.theme-industrial .li-scrim {
+  background:
+    linear-gradient(180deg, rgba(28,18,10,.82) 0%, rgba(28,18,10,.26) 24%, transparent 46%),
+    linear-gradient(to top, rgba(18,10,6,.91) 0%, rgba(18,10,6,.44) 30%, transparent 54%);
+}
+#li-canvas.theme-industrial #li-bg-placeholder {
+  background: linear-gradient(135deg, #292018, #161210);
+}
+#li-canvas.theme-aurora .li-scrim {
+  background:
+    linear-gradient(180deg, rgba(10,8,28,.80) 0%, rgba(10,8,28,.22) 26%, transparent 48%),
+    linear-gradient(to top, rgba(8,6,22,.90) 0%, rgba(8,6,22,.38) 32%, transparent 54%);
+}
+#li-canvas.theme-aurora #li-bg-placeholder {
+  background: linear-gradient(135deg, #1e1b4b, #0f1020);
+}
+#li-canvas.theme-copper .li-scrim {
+  background:
+    linear-gradient(180deg, rgba(22,8,12,.84) 0%, rgba(22,8,12,.26) 24%, transparent 46%),
+    linear-gradient(to top, rgba(14,6,8,.92) 0%, rgba(14,6,8,.42) 30%, transparent 54%);
+}
+#li-canvas.theme-copper #li-bg-placeholder {
+  background: linear-gradient(135deg, #3f1724, #1a0f12);
+}
+#li-canvas.theme-slate .li-scrim {
+  background:
+    linear-gradient(180deg, rgba(8,12,18,.82) 0%, rgba(8,12,18,.24) 26%, transparent 46%),
+    linear-gradient(to top, rgba(6,10,14,.90) 0%, rgba(6,10,14,.40) 30%, transparent 54%);
+}
+#li-canvas.theme-slate #li-bg-placeholder {
+  background: linear-gradient(135deg, #1e293b, #0f1419);
+}
+#li-canvas.theme-custom .li-scrim,
+#li-canvas.theme-classic .li-scrim {
+  background:
+    linear-gradient(180deg, rgba(6,4,14,.80) 0%, rgba(6,4,14,.25) 24%, transparent 46%),
+    linear-gradient(to top, rgba(6,4,14,.90) 0%, rgba(6,4,14,.40) 30%, transparent 54%);
+}
+#li-canvas.theme-custom #li-bg-placeholder,
+#li-canvas.theme-classic #li-bg-placeholder {
+  background: linear-gradient(135deg, #1a1528, #0c0a14);
+}
+#li-canvas.theme-midnight { background-color: #061018; }
+#li-canvas.theme-industrial { background-color: #161210; }
+#li-canvas.theme-aurora { background-color: #0f1020; }
+#li-canvas.theme-copper { background-color: #1a0f12; }
+#li-canvas.theme-slate { background-color: #0f1419; }
+#li-canvas.theme-classic,
+#li-canvas.theme-custom { background-color: #0c0a14; }
+
+/* — üst blok: logo + başlık — */
+.li-top {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1080px;            /* sabit genişlik */
+  padding: 44px 52px 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: hidden;         /* taşmayı kes */
+}
+
+/* logo: filter yok, sadece nesne kırpma */
+.li-top .li-logo {
+  display: block;
+  align-self: flex-start;   /* sütun flex'te stretch kap geniş kutuda html2canvas logoyu geriyordu */
+  height: 52px;
+  width: auto;
+  max-width: 340px;          /* yatay logo2 (EPC + tam isim) için */
+  object-fit: contain;
+  object-position: left center;
+}
+
+/* kategori etiketi: tek satır */
+.li-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+.li-cat {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 25px; font-weight: 700;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: #a8f580;
+  white-space: nowrap;       /* tek satır */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.li-cat::before {
+  content: ''; display: block;
+  width: 20px; height: 3px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--li-line-start, #7ed957), var(--li-line-end, #4B2D7F));
+  flex-shrink: 0;
+}
+
+/* başlık */
+.li-title {
+  font-size: 78px; font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.0;
+  color: #fff;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* — alt bilgi bloğu — */
+.li-info {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  width: 1080px;             /* sabit genişlik */
+  padding: 40px 52px 48px;
+  overflow: hidden;
+}
+.li-divider {
+  width: 56px; height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, #7ed957, #4B2D7F);
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+.li-sub {
+  font-size: 34px; font-weight: 500;
+  line-height: 1.45; color: rgba(255,255,255,.95);
+  margin-bottom: 20px;
+  overflow-wrap: break-word;
+}
+.li-bullets {
+  list-style: none;
+  display: flex; flex-direction: column;
+  gap: 11px; margin-bottom: 0;
+}
+.li-bullets li {
+  display: flex; align-items: flex-start; gap: 14px;
+  font-size: 30px; font-weight: 500;
+  line-height: 1.4; color: rgba(255,255,255,.92);
+  overflow-wrap: break-word;
+}
+.li-bullets li::before {
+  content: ''; flex-shrink: 0;
+  width: 8px; height: 8px;
+  margin-top: 0.5em; border-radius: 50%;
+  background: var(--bullet-color, #7ed957);
+}
+.li-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 26px; padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.li-footer-brand {
+  font-size: 23px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.32);
+}
+.li-footer-tag {
+  font-size: 24px; font-weight:600;
+  color:rgba(168,245,128,.75); letter-spacing:.5px;
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-brand">
+    <div class="dot"></div>
+    EPC Post Editörü
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="resetForm()">Sıfırla</button>
+    <button class="btn btn-primary" id="btnExport">PNG İndir (1080×1350)</button>
+  </div>
+</header>
+
+<!-- ── WORKSPACE ── -->
+<div class="workspace">
+
+  <!-- LEFT: form -->
+  <div class="panel" id="panel">
+
+    <!-- Arka plan görseli -->
+    <div>
+      <div class="section-label">Arka Plan Görseli</div>
+      <div class="img-drop" id="dropZone">
+        <input type="file" id="bgFile" accept="image/*">
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <p><strong>Tıkla</strong> veya görseli buraya sürükle</p>
+        <p style="font-size:11px; margin-top:4px;">PNG, JPG, WEBP</p>
+        <img id="bgThumb" class="img-thumb" alt="">
+      </div>
+    </div>
+
+    <hr class="divider-line">
+
+    <!-- Metin alanları -->
+    <div>
+      <div class="section-label">Metin</div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="field">
+          <label>Kategori / Küçük Başlık</label>
+          <input id="fCat" type="text" placeholder="Redresör" value="Redresör">
+        </div>
+        <div class="field">
+          <label>Seri Adı / Ana Başlık</label>
+          <input id="fTitle" type="text" placeholder="Hi-Rect Serisi" value="Hi-Rect Serisi">
+        </div>
+        <div class="field">
+          <label>Açıklama</label>
+          <textarea id="fSub" placeholder="DSP ile akıllı kontrol; float, equalize ve boost şarj.">DSP ile akıllı kontrol; float, equalize ve boost şarj.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider-line">
+
+    <!-- Madde listesi -->
+    <div>
+      <div class="section-label">Özellik Maddeleri</div>
+      <div class="bullets-list" id="bulletsList">
+        <div class="bullet-row">
+          <input type="text" placeholder="Madde 1" value="Tek/üç faz giriş • 24–220 VDC çıkış">
+          <button class="bullet-del" onclick="removeBullet(this)" title="Sil">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="bullet-row">
+          <input type="text" placeholder="Madde 2" value="RS232/RS485 üzerinden izleme ve kontrol">
+          <button class="bullet-del" onclick="removeBullet(this)" title="Sil">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="bullet-row">
+          <input type="text" placeholder="Madde 3" value="10 yıl yedek parça tedarik garantisi">
+          <button class="bullet-del" onclick="removeBullet(this)" title="Sil">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="add-bullet" onclick="addBullet()" style="margin-top:8px;">+ Madde ekle</button>
+    </div>
+
+    <hr class="divider-line">
+
+    <!-- Alt bilgi -->
+    <div>
+      <div class="section-label">Alt İmza</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="field">
+          <label>Marka adı (sol)</label>
+          <input id="fBrand" type="text" value="EPC Energy Power Conversion">
+        </div>
+        <div class="field">
+          <label>Web sitesi (sağ)</label>
+          <input id="fWeb" type="text" value="epcas.com.tr">
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider-line">
+
+    <!-- Hazır temalar -->
+    <div>
+      <div class="section-label">Görünüm teması</div>
+      <div class="field">
+        <label for="themeSelect">Şablon</label>
+        <select id="themeSelect">
+          <option value="classic" selected>Kurumsal Klasik (EPC yeşil–mor)</option>
+          <option value="midnight">Okyanus Mavisi</option>
+          <option value="industrial">Endüstriyel Amber</option>
+          <option value="aurora">Kuzey Işığı</option>
+          <option value="copper">Bakır &amp; Bordo</option>
+          <option value="slate">Soğuk Çelik</option>
+          <option value="custom">Manuel renkler (elle ayarlandı)</option>
+        </select>
+      </div>
+      <p style="font-size:11px; color:var(--muted); line-height:1.45; margin-top:6px;">Tema; yerleşim aynı kalır, renk paleti, yazı tipi ve üst/alt tonlama değişir. Renk seçicilerden birini değiştirirseniz liste “Manuel”e döner.</p>
+    </div>
+
+    <hr class="divider-line">
+
+    <!-- Renk seçiciler -->
+    <div>
+      <div class="section-label">Renkler</div>
+      <div class="color-row">
+        <div class="color-item">
+          <input type="color" id="cAccent" value="#7ed957" title="Vurgu (yeşil)">
+          <span>Vurgu</span>
+        </div>
+        <div class="color-item">
+          <input type="color" id="cPurple" value="#4B2D7F" title="Mor">
+          <span>Gradient</span>
+        </div>
+        <div class="color-item">
+          <input type="color" id="cTitle" value="#ffffff" title="Başlık rengi">
+          <span>Başlık</span>
+        </div>
+        <div class="color-item">
+          <input type="color" id="cCat" value="#a8f580" title="Kategori rengi">
+          <span>Kategori</span>
+        </div>
+        <div class="color-item">
+          <input type="color" id="cSub" value="#ebebeb" title="Açıklama rengi">
+          <span>Açıklama</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider-line">
+
+    <!-- Yazı tipi seçici -->
+    <div>
+      <div class="section-label">Yazı Tipi</div>
+      <div class="field">
+        <select id="fFont">
+          <option value="'Century Gothic','AppleGothic','Gill Sans MT',Calibri,sans-serif" selected>Century Gothic</option>
+          <option value="'Inter',ui-sans-serif,system-ui,sans-serif">Inter</option>
+          <option value="'Space Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif">Neo-Grotesk (Space Grotesk)</option>
+          <option value="'Lora',Georgia,'Times New Roman',serif">Modern Serif (Lora)</option>
+          <option value="'Open Sans','Segoe UI',Tahoma,sans-serif">Humanist Sans-Serif (Open Sans)</option>
+          <option value="'JetBrains Mono','Cascadia Code','Consolas',monospace">Monospace (JetBrains Mono)</option>
+          <option value="Georgia,'Times New Roman',serif">Georgia</option>
+          <option value="'Trebuchet MS',Helvetica,sans-serif">Trebuchet MS</option>
+          <option value="Arial,Helvetica,sans-serif">Arial</option>
+        </select>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+
+  <!-- RIGHT: preview -->
+  <div class="preview-area" id="previewArea">
+    <div class="preview-label">Önizleme</div>
+    <div class="canvas-scaler" id="scaler">
+      <div id="li-canvas" class="theme-classic">
+        <div id="li-bg-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>GÖRSEL YÜKLEYİN</span>
+        </div>
+        <div class="li-scrim"></div>
+        <div class="li-top">
+          <img class="li-logo" src="assets/logo2.png" alt="EPC Energy Power Conversion" onerror="this.style.display='none'">
+          <div class="li-title-block">
+            <div class="li-cat" id="cvCat">Redresör</div>
+            <h1 class="li-title" id="cvTitle">Hi-Rect Serisi</h1>
+          </div>
+        </div>
+        <div class="li-info">
+          <div class="li-divider" id="cvDivider"></div>
+          <p class="li-sub" id="cvSub">DSP ile akıllı kontrol; float, equalize ve boost şarj.</p>
+          <ul class="li-bullets" id="cvBullets">
+            <li>Tek/üç faz giriş • 24–220 VDC çıkış</li>
+            <li>RS232/RS485 üzerinden izleme ve kontrol</li>
+            <li>10 yıl yedek parça tedarik garantisi</li>
+          </ul>
+          <div class="li-footer">
+            <span class="li-footer-brand" id="cvBrand">EPC Energy Power Conversion</span>
+            <span class="li-footer-tag" id="cvWeb">epcas.com.tr</span>
+          </div>
+        </div>
+      </div><!-- /li-canvas -->
+    </div><!-- /scaler -->
+  </div><!-- /preview-area -->
+
+</div><!-- /workspace -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+<script>
+/* ── Ölçekleme ── */
+function scaleCanvas() {
+  var area = document.getElementById('previewArea');
+  var scaler = document.getElementById('scaler');
+  var availW = area.clientWidth - 48;
+  var availH = window.innerHeight - 56 - 60;
+  var scale = Math.min(availW / 1080, availH / 1350, 0.65);
+  scaler.style.transform = 'scale(' + scale + ')';
+  scaler.style.transformOrigin = 'top center';
+  scaler.style.marginBottom = (1350 * scale - 1350) + 'px';
+}
+window.addEventListener('resize', scaleCanvas);
+scaleCanvas();
+
+/* ── Hazır temalar ── */
+var THEME_PRESETS = {
+  classic: {
+    accent: '#7ed957', purple: '#4B2D7F', title: '#ffffff', cat: '#a8f580', sub: '#ebebeb',
+    font: "'Century Gothic','AppleGothic','Gill Sans MT',Calibri,sans-serif"
+  },
+  midnight: {
+    accent: '#22d3ee', purple: '#0369a1', title: '#f0f9ff', cat: '#67e8f9', sub: '#bae6fd',
+    font: "'Inter',ui-sans-serif,system-ui,sans-serif"
+  },
+  industrial: {
+    accent: '#f59e0b', purple: '#9a3412', title: '#fffbeb', cat: '#fcd34d', sub: '#e7e5e4',
+    font: "'Trebuchet MS',Helvetica,sans-serif"
+  },
+  aurora: {
+    accent: '#34d399', purple: '#6366f1', title: '#ecfdf5', cat: '#a7f3d0', sub: '#d1fae5',
+    font: "'Inter',ui-sans-serif,system-ui,sans-serif"
+  },
+  copper: {
+    accent: '#fda4af', purple: '#9f1239', title: '#fff1f2', cat: '#fecdd3', sub: '#fce7e7',
+    font: "Georgia,'Times New Roman',serif"
+  },
+  slate: {
+    accent: '#94a3b8', purple: '#475569', title: '#f8fafc', cat: '#cbd5e1', sub: '#e2e8f0',
+    font: "'Inter',ui-sans-serif,system-ui,sans-serif"
+  }
+};
+
+var EXPORT_BG_BY_THEME = {
+  classic: '#0c0a14', midnight: '#061018', industrial: '#161210',
+  aurora: '#0f1020', copper: '#1a0f12', slate: '#0f1419', custom: '#0c0a14'
+};
+
+var _applyingTheme = false;
+
+function applyTheme(themeId) {
+  if (themeId === 'custom') return;
+  var preset = THEME_PRESETS[themeId];
+  if (!preset) return;
+  _applyingTheme = true;
+  document.getElementById('cAccent').value = preset.accent;
+  document.getElementById('cPurple').value = preset.purple;
+  document.getElementById('cTitle').value = preset.title;
+  document.getElementById('cCat').value = preset.cat;
+  document.getElementById('cSub').value = preset.sub;
+  document.getElementById('fFont').value = preset.font;
+  document.getElementById('li-canvas').className = 'theme-' + themeId;
+  document.getElementById('themeSelect').value = themeId;
+  _applyingTheme = false;
+  updateCanvas();
+}
+
+function getExportBackgroundColor() {
+  var canvas = document.getElementById('li-canvas');
+  var order = ['classic', 'midnight', 'industrial', 'aurora', 'copper', 'slate', 'custom'];
+  for (var i = 0; i < order.length; i++) {
+    if (canvas.classList.contains('theme-' + order[i])) {
+      return EXPORT_BG_BY_THEME[order[i]] || '#0c0a14';
+    }
+  }
+  return '#0c0a14';
+}
+
+document.getElementById('themeSelect').addEventListener('change', function() {
+  if (this.value === 'custom') return;
+  applyTheme(this.value);
+});
+
+document.getElementById('fFont').addEventListener('change', function() {
+  if (!_applyingTheme) {
+    document.getElementById('themeSelect').value = 'custom';
+    document.getElementById('li-canvas').className = 'theme-custom';
+  }
+  updateCanvas();
+});
+
+/* ── Canlı güncelleme ── */
+function updateCanvas() {
+  var font = document.getElementById('fFont').value;
+  var canvas = document.getElementById('li-canvas');
+  canvas.style.fontFamily = font;
+  canvas.querySelectorAll('*').forEach(function(el) { el.style.fontFamily = font; });
+
+  document.getElementById('cvCat').textContent   = document.getElementById('fCat').value   || 'Kategori';
+  document.getElementById('cvTitle').textContent = document.getElementById('fTitle').value || 'Seri Adı';
+  document.getElementById('cvSub').textContent   = document.getElementById('fSub').value   || '';
+  document.getElementById('cvBrand').textContent = document.getElementById('fBrand').value || '';
+  document.getElementById('cvWeb').textContent   = document.getElementById('fWeb').value   || '';
+
+  /* renkler */
+  var cAccent = document.getElementById('cAccent').value;
+  var cPurple = document.getElementById('cPurple').value;
+  var cTitle  = document.getElementById('cTitle').value;
+  var cCat    = document.getElementById('cCat').value;
+  var cSub    = document.getElementById('cSub').value;
+
+  canvas.style.setProperty('--li-line-start', cAccent);
+  canvas.style.setProperty('--li-line-end', cPurple);
+  document.getElementById('cvCat').style.color   = cCat;
+  document.getElementById('cvTitle').style.color = cTitle;
+  document.getElementById('cvSub').style.color   = cSub;
+  document.getElementById('cvDivider').style.background =
+    'linear-gradient(90deg, ' + cAccent + ', ' + cPurple + ')';
+  document.querySelectorAll('.li-bullets li').forEach(function(li) {
+    li.style.color = cSub;
+  });
+  document.querySelectorAll('.li-bullets li::before').forEach(function() {});
+  /* nokta rengini CSS variable ile ayarla */
+  canvas.style.setProperty('--bullet-color', cAccent);
+
+  /* bullet noktaları için inline stil */
+  document.querySelectorAll('#cvBullets li').forEach(function(li) {
+    li.style.color = cSub;
+  });
+  /* cat ::before rengi doğrudan style ile verilemiyor; inline stilsiz bırakıyoruz */
+
+  /* maddeleri yeniden oluştur */
+  var rows = document.querySelectorAll('#bulletsList .bullet-row input');
+  var ul = document.getElementById('cvBullets');
+  ul.innerHTML = '';
+  rows.forEach(function(inp) {
+    var val = inp.value.trim();
+    if (!val) return;
+    var li = document.createElement('li');
+    li.textContent = val;
+    li.style.color = cSub;
+    ul.appendChild(li);
+  });
+}
+
+/* ── Giriş dinleyicileri ── */
+['fCat','fTitle','fSub','fBrand','fWeb','cAccent','cPurple','cTitle','cCat','cSub'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    if (!_applyingTheme && ['cAccent','cPurple','cTitle','cCat','cSub'].indexOf(id) >= 0) {
+      document.getElementById('themeSelect').value = 'custom';
+      document.getElementById('li-canvas').className = 'theme-custom';
+    }
+    updateCanvas();
+  });
+});
+document.getElementById('bulletsList').addEventListener('input', updateCanvas);
+
+/* ── Görsel yükleme ── */
+var bgFile = document.getElementById('bgFile');
+var dropZone = document.getElementById('dropZone');
+bgFile.addEventListener('change', function() { loadImage(this.files[0]); });
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('drag'); });
+dropZone.addEventListener('dragleave', function() { this.classList.remove('drag'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault(); this.classList.remove('drag');
+  var f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+
+function loadImage(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var src = e.target.result;
+    /* CSS background-image kullan — html2canvas background-size:cover destekler */
+    var canvas = document.getElementById('li-canvas');
+    canvas.style.backgroundImage = 'url(' + src + ')';
+    document.getElementById('li-bg-placeholder').style.display = 'none';
+    var thumb = document.getElementById('bgThumb');
+    thumb.src = src;
+    thumb.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── Madde ekle / sil ── */
+function addBullet() {
+  var list = document.getElementById('bulletsList');
+  var row = document.createElement('div');
+  row.className = 'bullet-row';
+  row.innerHTML = '<input type="text" placeholder="Yeni madde">' +
+    '<button class="bullet-del" onclick="removeBullet(this)" title="Sil">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+    '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  list.appendChild(row);
+  row.querySelector('input').addEventListener('input', updateCanvas);
+  row.querySelector('input').focus();
+}
+
+function removeBullet(btn) {
+  btn.closest('.bullet-row').remove();
+  updateCanvas();
+}
+
+/* ── Sıfırla ── */
+function resetForm() {
+  if (!confirm('Formu sıfırlamak istediğinizden emin misiniz?')) return;
+  document.getElementById('fCat').value = '';
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fSub').value = '';
+  document.getElementById('fBrand').value = 'EPC Energy Power Conversion';
+  document.getElementById('fWeb').value = 'epcas.com.tr';
+  document.getElementById('bulletsList').innerHTML = '';
+  document.getElementById('li-canvas').style.backgroundImage = 'none';
+  document.getElementById('li-bg-placeholder').style.display = 'flex';
+  document.getElementById('bgThumb').src = '';
+  document.getElementById('bgThumb').style.display = 'none';
+  applyTheme('classic');
+}
+
+/* ── PNG İndir ── */
+document.getElementById('btnExport').addEventListener('click', async function() {
+  var btn = this;
+  if (typeof html2canvas === 'undefined') {
+    alert('html2canvas yüklenemedi. İnternet bağlantınızı kontrol edin.');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Hazırlanıyor…';
+
+  var scaler  = document.getElementById('scaler');
+  var el      = document.getElementById('li-canvas');
+
+  /* 1. Transform'u kaldır — html2canvas scale()'li parent'ta koordinatları yanlış hesaplar */
+  var savedTransform = scaler.style.transform;
+  var savedOrigin    = scaler.style.transformOrigin;
+  var savedMargin    = scaler.style.marginBottom;
+  scaler.style.transform       = 'none';
+  scaler.style.transformOrigin = 'top left';
+  scaler.style.marginBottom    = '0';
+
+  /* 2. İki frame bekle — tarayıcı layout'u hesaplasın */
+  await new Promise(function(r) { requestAnimationFrame(function() { requestAnimationFrame(r); }); });
+
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+    var logoEl = document.querySelector('#li-canvas .li-logo');
+    if (logoEl && logoEl.src && !logoEl.complete) {
+      await new Promise(function(resolve) {
+        logoEl.onload = logoEl.onerror = resolve;
+        setTimeout(resolve, 3000);
+      });
+    }
+
+      var canvas = await html2canvas(el, {
+      scale: 1,           /* çıktı tam 1080×1350 — önizleme ile birebir */
+      useCORS: false,
+      allowTaint: true,
+      backgroundColor: getExportBackgroundColor(),
+      logging: false,
+      imageTimeout: 20000,
+      width:  1080,
+      height: 1350,
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: function(doc) {
+        /* backdrop-filter kaldır (html2canvas desteklemiyor) */
+        doc.querySelectorAll('*').forEach(function(n) {
+          n.style.backdropFilter       = 'none';
+          n.style.webkitBackdropFilter = 'none';
+        });
+        /* canvas boyutunu klonda da zorla */
+        var c = doc.getElementById('li-canvas');
+        if (c) {
+          c.style.width    = '1080px';
+          c.style.height   = '1350px';
+          c.style.overflow = 'hidden';
+        }
+        /*
+         * Logo: html2canvas, width:auto + object-fit:contain img'de en-boy oranını
+         * bazen bozup yatay geriyor. Önizlemedeki gerçek boyutları px olarak klon'a yazıyoruz.
+         */
+        var origLogo = document.querySelector('#li-canvas .li-logo');
+        var cloneLogo = doc.querySelector('#li-canvas .li-logo');
+        if (origLogo && cloneLogo && origLogo.offsetWidth > 0 && origLogo.offsetHeight > 0) {
+          var lw = Math.round(origLogo.offsetWidth);
+          var lh = Math.round(origLogo.offsetHeight);
+          cloneLogo.style.width = lw + 'px';
+          cloneLogo.style.height = lh + 'px';
+          cloneLogo.style.maxWidth = 'none';
+          cloneLogo.style.flexShrink = '0';
+          cloneLogo.style.objectFit = 'contain';
+          cloneLogo.style.objectPosition = 'left center';
+        }
+      }
+    });
+
+    var title = (document.getElementById('fTitle').value || 'epc- ')
+      .replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+    var a = document.createElement('a');
+    a.download = 'epc-' + title + '.png';
+    a.href = canvas.toDataURL('image/png', 0.95);
+    a.click();
+
+  } catch(e) {
+    console.error(e);
+    alert('Dışa aktarma hatası: ' + (e.message || e));
+  } finally {
+    /* 3. Transform'u geri yükle */
+    scaler.style.transform       = savedTransform;
+    scaler.style.transformOrigin = savedOrigin;
+    scaler.style.marginBottom    = savedMargin;
+    btn.disabled   = false;
+    btn.textContent = 'PNG İndir (1080×1350)';
+  }
+});
+
+/* İlk render */
+updateCanvas();
+</script>
+</body>
+</html>
