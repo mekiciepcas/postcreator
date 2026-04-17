@@ -1,6 +1,9 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/linkedin-editor.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/linkedin", "destination": "/linkedin-editor.html" },
+    { "source": "/instagram", "destination": "/instagram-editor.html" },
+    { "source": "/studio", "destination": "/product-studio.html" }
   ],
   "headers": [
     {

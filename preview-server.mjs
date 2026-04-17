@@ -60,8 +60,11 @@ const server = http.createServer((req, res) => {
   let pathname = url.pathname;
 
   if (pathname === '/' || pathname === '') {
-    pathname = '/ -editor.html';
+    pathname = '/index.html';
   }
+  if (pathname === '/linkedin') pathname = '/linkedin-editor.html';
+  if (pathname === '/instagram') pathname = '/instagram-editor.html';
+  if (pathname === '/studio') pathname = '/product-studio.html';
 
   const filePath = safeJoin(ROOT, pathname);
 
@@ -99,8 +102,12 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`  editor: http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}/ -editor.html`);
+  const base = `http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`;
+  console.log(`EPC Icerik Studyosu: ${base}/`);
+  console.log(`  - LinkedIn    : ${base}/linkedin-editor.html`);
+  console.log(`  - Instagram   : ${base}/instagram-editor.html`);
+  console.log(`  - Urun Studyo : ${base}/product-studio.html`);
   if (HOST === '0.0.0.0') {
-    console.log(`(Ağdan erişim: http://<bu-bilgisayarin-ip-adresi>:${PORT}/ )`);
+    console.log(`(Agdan erisim: http://<bu-bilgisayarin-ip-adresi>:${PORT}/ )`);
   }
 });
