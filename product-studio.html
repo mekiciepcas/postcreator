@@ -46,9 +46,6 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 .img-drop .drop-icon{width:40px;height:40px;margin:0 auto 8px;background:linear-gradient(135deg,var(--green),var(--accent));border-radius:10px;display:flex;align-items:center;justify-content:center}
 .img-drop .drop-icon svg{width:20px;height:20px;color:#fff}
 .img-thumb{width:100%;height:72px;object-fit:cover;border-radius:8px;margin-top:8px;display:none}
-details.adv{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fafbfc}
-details.adv summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--accent)}
-details.adv .adv-body{margin-top:10px}
 .theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .theme-chip{padding:10px;border-radius:10px;border:1px solid var(--border);background:#f7f8fa;cursor:pointer;font-size:11px;font-weight:600;text-align:center;transition:.15s}
 .theme-chip.active{border-color:var(--accent);background:rgba(75,45,127,.06);color:var(--accent);box-shadow:0 0 0 2px rgba(75,45,127,.1)}
@@ -65,8 +62,6 @@ details.adv .adv-body{margin-top:10px}
 .ref-bg-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#1a1528,#0c0a14);z-index:0}
 .ref-bg-placeholder span{font-size:16px;color:rgba(255,255,255,.2);letter-spacing:3px;font-weight:700}
 .ref-photo-layer{position:absolute;inset:0;z-index:1;background-size:cover;background-position:center;background-repeat:no-repeat}
-.ref-photo-layer.has-cutout{background:none!important}
-.ref-photo-layer img.cutout{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;pointer-events:none}
 .ref-studio-floor{position:absolute;left:0;right:0;bottom:0;height:38%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.15));z-index:2;pointer-events:none;opacity:var(--floor-op,.35)}
 .ref-scrim-t,.ref-scrim-b{position:absolute;left:0;right:0;pointer-events:none;z-index:3}
 .ref-scrim-t{top:0;height:42%;background:linear-gradient(180deg,var(--scrim-top,rgba(8,6,16,.75)) 0%,transparent 100%);opacity:var(--scrim-strength,1)}
@@ -105,12 +100,6 @@ details.adv .adv-body{margin-top:10px}
 .crop-modal.open{display:flex}
 .crop-box{background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;overflow:auto;padding:16px}
 .crop-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-
-/* Progress */
-.prog{position:absolute;inset:0;background:rgba(255,255,255,.93);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50}
-.prog.show{display:flex}
-.prog .bar{width:70%;max-width:360px;height:8px;background:#eef1f5;border-radius:99px;overflow:hidden}
-.prog .bar>div{height:100%;background:linear-gradient(90deg,var(--green),var(--accent));width:0%;transition:width .2s}
 </style>
 </head>
 <body>
@@ -154,23 +143,6 @@ details.adv .adv-body{margin-top:10px}
       </div>
       <button type="button" class="btn" id="btnCrop" style="width:100%;margin-top:8px;display:none">Kırp</button>
     </div>
-
-    <details class="adv" id="advBg">
-      <summary>Gelişmiş: arka planı kaldır (isteğe bağlı)</summary>
-      <div class="adv-body">
-        <p style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px">İlk kullanımda model indirilir (~70 MB). Yerelde çalışır.</p>
-        <button type="button" class="btn btn-primary" id="btnRmBg" style="width:100%" disabled>Arka planı kaldır</button>
-        <div class="field" id="floorField" style="margin-top:10px;display:none">
-          <label>Stüdyo zemini (kesim sonrası)</label>
-          <select id="fFloor">
-            <option value="dark">Koyu gradient</option>
-            <option value="light">Açık stüdyo</option>
-            <option value="purple">Mor derinlik</option>
-            <option value="slate">Gri endüstri</option>
-          </select>
-        </div>
-      </div>
-    </details>
 
     <hr class="divider-line">
 
@@ -244,15 +216,12 @@ details.adv .adv-body{margin-top:10px}
   </div>
 </div>
 
-<div class="prog" id="prog"><div style="font-weight:700">Model yükleniyor…</div><div class="bar"><div id="progBar"></div></div><div id="progTxt" style="font-size:11px;color:var(--muted)"></div></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
 (function(){
 var SIZES={hd:{w:1920,h:1080},hd16:{w:1600,h:900},sq:{w:1200,h:1200}};
 var THEME_CLASS={corporate:'theme-corporate',light:'theme-light',industrial:'theme-industrial',aurora:'theme-aurora',minimal:'theme-minimal'};
-var FLOOR_BG={dark:'linear-gradient(180deg,#0d0d12 0%,#1a1a22 100%)',light:'linear-gradient(180deg,#e8eaef 0%,#d1d5db 100%)',purple:'linear-gradient(135deg,#1a1528 0%,#1e1035 100%)',slate:'linear-gradient(180deg,#1e293b 0%,#334155 100%)'};
 var ref=document.getElementById('ref-canvas');
 var photoLayer=document.getElementById('photoLayer');
 var ph=document.getElementById('ph');
@@ -261,22 +230,13 @@ var cropModal=document.getElementById('cropModal');
 var cropImg=document.getElementById('cropImg');
 var cropper=null;
 var lastDataUrl=null;
-var cutoutMode=false;
 
 function getSize(){return SIZES[document.getElementById('fSize').value]||SIZES.hd}
 function applyThemeClass(name){
   ref.className='';
   ref.classList.add(THEME_CLASS[name]||THEME_CLASS.corporate);
   ref.dataset.theme=name;
-  updateFloorBg();
-}
-function updateFloorBg(){
-  if(cutoutMode){
-    var k=document.getElementById('fFloor').value;
-    ref.style.background=FLOOR_BG[k]||FLOOR_BG.dark;
-  }else{
-    ref.style.background=(ref.dataset.theme==='light')?'#f3f4f6':'#0f0f12';
-  }
+  ref.style.background=(ref.dataset.theme==='light')?'#f3f4f6':'#0f0f12';
 }
 function updateExportLabel(){
   var s=getSize();
@@ -326,7 +286,6 @@ function scalePreview(){
 window.addEventListener('resize',scalePreview);
 
 document.getElementById('fSize').addEventListener('change',setCanvasSize);
-document.getElementById('fFloor').addEventListener('change',updateFloorBg);
 ['sScrim','sVig','sRim','sBright','sCont'].forEach(function(id){
   document.getElementById(id).addEventListener('input',updateVars);
 });
@@ -348,18 +307,13 @@ function loadFile(f){
   var r=new FileReader();
   r.onload=function(ev){
     lastDataUrl=ev.target.result;
-    cutoutMode=false;
-    photoLayer.classList.remove('has-cutout');
     photoLayer.innerHTML='';
     photoLayer.style.backgroundImage='url('+lastDataUrl+')';
     ph.style.display='none';
     document.getElementById('thumb').src=lastDataUrl;
     document.getElementById('thumb').style.display='block';
     document.getElementById('btnExport').disabled=false;
-    document.getElementById('btnRmBg').disabled=false;
     document.getElementById('btnCrop').style.display='block';
-    document.getElementById('floorField').style.display='none';
-    updateFloorBg();
     updateExportLabel();
   };
   r.readAsDataURL(f);
@@ -396,64 +350,22 @@ document.getElementById('cropOk').addEventListener('click',function(){
   var c=cropper.getCroppedCanvas({width:s.w,height:s.h,imageSmoothingQuality:'high'});
   var url=c.toDataURL('image/jpeg',0.92);
   lastDataUrl=url;
-  cutoutMode=false;
-  photoLayer.classList.remove('has-cutout');
   photoLayer.innerHTML='';
   photoLayer.style.backgroundImage='url('+url+')';
-  document.getElementById('floorField').style.display='none';
-  updateFloorBg();
   cropModal.classList.remove('open');
   cropper.destroy();
   cropper=null;
 });
 
-document.getElementById('btnRmBg').addEventListener('click',async function(){
-  if(!lastDataUrl)return;
-  var btn=this;
-  btn.disabled=true;
-  document.getElementById('prog').classList.add('show');
-  document.getElementById('progBar').style.width='5%';
-  document.getElementById('progTxt').textContent='';
-  try{
-    var mod=await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/dist/browser.mjs');
-    var rm=mod.removeBackground||mod.default;
-    var blob=await rm(lastDataUrl,{progress:function(k,cur,tot){
-      if(tot)document.getElementById('progBar').style.width=(5+90*cur/tot)+'%';
-      document.getElementById('progTxt').textContent=(k||'')+'';
-    }});
-    var u=URL.createObjectURL(blob);
-    var im=new Image();
-    im.onload=function(){
-      cutoutMode=true;
-      photoLayer.style.backgroundImage='none';
-      photoLayer.classList.add('has-cutout');
-      photoLayer.innerHTML='<img class="cutout" src="'+u+'" alt="">';
-      document.getElementById('floorField').style.display='block';
-      updateFloorBg();
-      document.getElementById('prog').classList.remove('show');
-      btn.disabled=false;
-    };
-    im.src=u;
-  }catch(e){
-    console.error(e);
-    alert('Arka plan kaldırılamadı: '+(e.message||e));
-    document.getElementById('prog').classList.remove('show');
-    btn.disabled=false;
-  }
-});
-
 document.getElementById('btnReset').addEventListener('click',function(){
   if(!confirm('Sıfırlansın mı?'))return;
   lastDataUrl=null;
-  cutoutMode=false;
   photoLayer.style.backgroundImage='none';
   photoLayer.style.filter='none';
-  photoLayer.classList.remove('has-cutout');
   photoLayer.innerHTML='';
   ph.style.display='flex';
   document.getElementById('thumb').style.display='none';
   document.getElementById('btnExport').disabled=true;
-  document.getElementById('btnRmBg').disabled=true;
   document.getElementById('btnCrop').style.display='none';
   document.getElementById('fCat').value='Güç elektroniği';
   document.getElementById('fTitle').value='Endüstriyel çözüm';
@@ -468,21 +380,12 @@ document.getElementById('btnReset').addEventListener('click',function(){
   document.querySelectorAll('.theme-chip').forEach(function(c){c.classList.toggle('active',c.dataset.theme==='corporate')});
   applyThemeClass('corporate');
   document.getElementById('fSize').value='hd';
-  document.getElementById('floorField').style.display='none';
   updateVars();
   updateText();
   setCanvasSize();
-  updateFloorBg();
 });
 
 function exportBg(){
-  if(cutoutMode){
-    var k=document.getElementById('fFloor').value;
-    if(k==='light')return'#d1d5db';
-    if(k==='purple')return'#1a1528';
-    if(k==='slate')return'#1e293b';
-    return'#0f0f12';
-  }
   var t=ref.dataset.theme||'corporate';
   if(t==='light')return'#f3f4f6';
   return'#0f0f12';
@@ -544,7 +447,6 @@ updateVars();
 updateText();
 setCanvasSize();
 scalePreview();
-updateFloorBg();
 })();
 </script>
 </body>
