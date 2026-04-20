@@ -96,6 +96,82 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
 #ref-canvas.theme-aurora{--scrim-top:rgba(45,25,78,.72);--scrim-bot:rgba(8,32,48,.9);--cat-col:#7dd3fc}
 #ref-canvas.theme-minimal{--scrim-top:rgba(0,0,0,.12);--scrim-bot:rgba(17,24,39,.82);--cat-col:#9ca3af;--title-col:#f9fafb}
 
+/* Callouts — nokta bağlantılı metin (kutu yok) */
+.ref-callouts{position:absolute;inset:0;z-index:9;pointer-events:none}
+.ref-callout{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+#ref-canvas .ref-callout .cap{position:relative;width:max-content;max-width:560px;padding:6px 10px;background:transparent;color:var(--cal-fg,#ffffff);font-family:var(--font-ui),'Inter',system-ui,sans-serif;font-size:22px;font-weight:600;line-height:1.5;letter-spacing:-.005em;text-shadow:var(--cal-shadow,0 2px 10px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.55));white-space:normal;overflow-wrap:break-word;display:flex;flex-direction:column;gap:.15em;pointer-events:auto;cursor:move;touch-action:none;border-radius:8px;outline:1px dashed transparent;outline-offset:6px;transition:outline-color .15s ease, background-color .15s ease}
+#ref-canvas[data-size="sq"] .ref-callout .cap{max-width:440px}
+#ref-canvas .ref-callout .cap:hover{outline-color:rgba(255,255,255,.28)}
+#ref-canvas.theme-light .ref-callout .cap:hover{outline-color:rgba(75,45,127,.35)}
+#ref-canvas .ref-callout.selected .cap{outline-color:var(--green,#7ed957);outline-style:dashed}
+#ref-canvas .ref-callout .cap .p{white-space:pre-wrap}
+#ref-canvas .ref-callout .cap .p-title{border-bottom:2px solid var(--green,#7ed957);padding-bottom:.18em;margin-bottom:.18em}
+#ref-canvas .ref-callout .cap .li{display:flex;gap:.55em;align-items:baseline;padding-left:.1em}
+#ref-canvas .ref-callout .cap .li .mk{flex:none;font-weight:700;line-height:1.5;color:var(--green,#7ed957)}
+#ref-canvas .ref-callout .cap .li .tx{flex:1 1 auto;white-space:pre-wrap}
+#ref-canvas .ref-callout .cap .sp{height:.5em}
+.ref-callout[data-align="left"] .cap{text-align:left;align-items:flex-start}
+.ref-callout[data-align="center"] .cap{text-align:center;align-items:center}
+.ref-callout[data-align="right"] .cap{text-align:right;align-items:flex-end}
+body.exporting #ref-canvas .ref-callout .cap,
+body.exporting #ref-canvas .ref-callout.selected .cap,
+body.exporting #ref-canvas .ref-callout .cap:hover{outline:none !important}
+
+/* EPC nokta bağlantısı (yeşil çubuk + markalı nokta) */
+#arrowLayer{position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;overflow:visible}
+#arrowLayer .arrow-line{fill:none;stroke:var(--green,#7ed957);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+#arrowLayer .arrow-dot{fill:var(--green,#7ed957);stroke:#ffffff;stroke-width:2;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+#arrowLayer .arrow-hit{fill:transparent;pointer-events:auto;cursor:grab;touch-action:none}
+#arrowLayer .arrow-hit:active{cursor:grabbing}
+#arrowLayer .arrow-group.selected .arrow-dot{stroke-width:3;filter:drop-shadow(0 0 6px rgba(126,217,87,.7)) drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+body.exporting #arrowLayer .arrow-hit{display:none !important}
+body.exporting #arrowLayer .arrow-group.selected .arrow-dot{stroke-width:2 !important;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45)) !important}
+#ref-canvas{--cal-border:#4B2D7F;--cal-fg:#ffffff;--cal-shadow:0 2px 10px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.55)}
+#ref-canvas.theme-corporate{--cal-border:#4B2D7F;--cal-fg:#ffffff}
+#ref-canvas.theme-light{--cal-border:#4B2D7F;--cal-fg:#1a1d23;--cal-shadow:0 1px 2px rgba(255,255,255,.6)}
+#ref-canvas.theme-industrial{--cal-border:#fafafa;--cal-fg:#fafafa}
+#ref-canvas.theme-aurora{--cal-border:#7dd3fc;--cal-fg:#ffffff}
+#ref-canvas.theme-minimal{--cal-border:#4B2D7F;--cal-fg:#f9fafb}
+
+/* Panel — işaret listesi */
+.cal-list{display:flex;flex-direction:column;gap:10px}
+.cal-empty{font-size:12px;color:var(--muted);padding:10px 12px;border:1px dashed var(--border);border-radius:9px;text-align:center;background:#f7f8fa}
+.cal-item{border:1px solid var(--border);border-radius:10px;background:#f7f8fa;padding:10px;display:flex;flex-direction:column;gap:8px}
+.cal-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cal-item-head .idx{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+.cal-del{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:4px 6px;border-radius:6px}
+.cal-del:hover{color:#b91c1c;background:rgba(185,28,28,.06)}
+.cal-item textarea{font-family:var(--font-ui);font-size:12px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-height:44px;resize:vertical;color:var(--text);outline:none}
+.cal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cal-grid label{display:flex;flex-direction:column;gap:3px;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.cal-grid input{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;border:1px solid var(--border);border-radius:7px;padding:6px 8px;color:var(--text);outline:none;width:100%}
+.cal-side,.cal-align{display:flex;gap:4px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:3px;flex:1}
+.cal-side button,.cal-align button{flex:1;border:none;background:transparent;font-size:11px;font-weight:600;color:var(--muted);padding:5px 2px;border-radius:5px;cursor:pointer}
+.cal-side button.active,.cal-align button.active{background:rgba(75,45,127,.08);color:var(--accent)}
+.cal-row{display:flex;align-items:center;gap:8px}
+.cal-row-label{flex:none;width:78px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.cal-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);cursor:pointer;padding:4px 2px}
+.cal-toggle input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;flex:none}
+.cal-toggle span{line-height:1.3}
+.cal-grid-2{grid-template-columns:repeat(2,1fr)}
+.cal-color{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+.cal-color label{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;flex:1;display:flex;align-items:center;gap:6px}
+.cal-color label .auto-tag{background:rgba(75,45,127,.08);color:var(--accent);letter-spacing:.5px;padding:1px 6px;border-radius:999px;font-size:9px;text-transform:uppercase}
+.cal-color input[type=color]{width:32px;height:24px;border:1px solid var(--border);border-radius:5px;padding:0;background:#fff;cursor:pointer}
+.cal-color input[type=color]::-webkit-color-swatch-wrapper{padding:2px;border-radius:4px}
+.cal-color input[type=color]::-webkit-color-swatch{border:none;border-radius:3px}
+.cal-color-reset{border:1px solid var(--border);background:#f7f8fa;color:var(--muted);font-family:var(--font-ui);font-size:10px;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer}
+.cal-color-reset:hover{color:var(--accent);border-color:var(--accent)}
+.cal-hint{font-size:10.5px;line-height:1.4;color:var(--muted);background:#fff;border:1px dashed var(--border);border-radius:7px;padding:6px 8px}
+.cal-hint code{font-family:ui-monospace,Consolas,monospace;font-size:10.5px;background:rgba(75,45,127,.08);color:var(--accent);padding:1px 5px;border-radius:4px}
+.cal-size{display:flex;flex-direction:column;gap:4px}
+.cal-size label{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.cal-size label .v{color:var(--text);font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:0;text-transform:none}
+.cal-size input[type=range]{width:100%;accent-color:var(--accent)}
+.btn-add{width:100%;border:1px dashed var(--border);background:#fff;color:var(--accent);font-weight:600;font-size:12px;padding:10px;border-radius:9px;cursor:pointer;transition:.15s}
+.btn-add:hover{background:rgba(75,45,127,.04);border-color:var(--accent)}
+.btn-add:disabled{opacity:.5;cursor:not-allowed}
+
 .crop-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(15,20,28,.65);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
 .crop-modal.open{display:flex}
 .crop-box{background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;overflow:auto;padding:16px}
@@ -177,6 +253,15 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
       <div class="field"><label>Marka (alt şerit)</label><input id="fBrand" type="text" value="EPC Energy Power Conversion"></div>
       <div class="field"><label>Web</label><input id="fWeb" type="text" value="epcas.com.tr"></div>
     </div>
+
+    <hr class="divider-line">
+
+    <div>
+      <div class="section-label">Alan işaretleri</div>
+      <p style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">Görsel üzerinde kare ile çevrilecek bölgeyi ve yanına gelecek açıklamayı tanımlayın. Değerler yüzde (%) bazlıdır; tüm çıktı boyutlarında aynı oranda kalır.</p>
+      <div class="cal-list" id="calList"></div>
+      <button type="button" class="btn-add" id="btnCalAdd">+ Yeni işaret ekle</button>
+    </div>
   </div>
 
   <div class="preview-area" id="previewArea">
@@ -190,6 +275,8 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:f
         <div class="ref-scrim-b" id="scrimB"></div>
         <div class="ref-vignette" id="vig"></div>
         <div class="ref-rim" id="rim"></div>
+        <svg id="arrowLayer" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="ref-callouts" id="calloutsLayer" aria-hidden="true"></div>
         <div class="ref-content">
           <div class="ref-cat" id="cvCat">Güç elektroniği</div>
           <h1 class="ref-title" id="cvTitle">Endüstriyel çözüm</h1>
@@ -230,6 +317,322 @@ var cropModal=document.getElementById('cropModal');
 var cropImg=document.getElementById('cropImg');
 var cropper=null;
 var lastDataUrl=null;
+var annotations=[];
+var selectedIdx=-1;
+var MAX_CALLOUTS=8;
+var calList=document.getElementById('calList');
+var calLayer=document.getElementById('calloutsLayer');
+var btnCalAdd=document.getElementById('btnCalAdd');
+var arrowLayer=document.getElementById('arrowLayer');
+var SVG_NS='http://www.w3.org/2000/svg';
+
+function clamp(v,min,max){v=+v;if(isNaN(v))v=min;return Math.max(min,Math.min(max,v))}
+function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})}
+function buildCapContent(cap,text,opts){
+  cap.innerHTML='';
+  var underline=opts&&opts.titleUnderline;
+  var lines=String(text).split(/\r?\n/);
+  var firstParagraphMarked=false;
+  lines.forEach(function(line){
+    if(!line.trim()){
+      var sp=document.createElement('div');sp.className='sp';
+      cap.appendChild(sp);return;
+    }
+    var m=line.match(/^\s*([-•*])\s+(.*)$/);
+    if(m){
+      var li=document.createElement('div');li.className='li';
+      var mk=document.createElement('span');mk.className='mk';mk.textContent='•';
+      var tx=document.createElement('span');tx.className='tx';tx.textContent=m[2];
+      li.appendChild(mk);li.appendChild(tx);
+      cap.appendChild(li);
+      firstParagraphMarked=true;
+    }else{
+      var p=document.createElement('div');p.className='p';p.textContent=line;
+      if(underline&&!firstParagraphMarked){p.classList.add('p-title');firstParagraphMarked=true}
+      cap.appendChild(p);
+    }
+  });
+}
+
+function normalizeAnnotation(a){
+  if(a.tx==null||a.ty==null){
+    var cx=(a.x||0)+(a.w||0)/2;
+    var cy=(a.y||0)+(a.h||0)/2;
+    var off=(a.w||0)/2+12;
+    switch(a.side){
+      case 'left': a.tx=clamp(cx-off,5,95); a.ty=clamp(cy,5,95); break;
+      case 'top': a.tx=clamp(cx,5,95); a.ty=clamp(cy-off,5,95); break;
+      case 'bottom': a.tx=clamp(cx,5,95); a.ty=clamp(cy+off,5,95); break;
+      default: a.tx=clamp(cx+off,5,95); a.ty=clamp(cy,5,95);
+    }
+    if(a.arrow&&a.ax!=null&&a.ay!=null){a.x=a.ax;a.y=a.ay}
+    else{a.x=clamp(cx,0,100);a.y=clamp(cy,0,100)}
+  }
+  a.x=clamp(a.x!=null?a.x:50,0,100);
+  a.y=clamp(a.y!=null?a.y:50,0,100);
+  a.tx=clamp(a.tx!=null?a.tx:65,0,100);
+  a.ty=clamp(a.ty!=null?a.ty:50,0,100);
+  delete a.w;delete a.h;delete a.side;delete a.ax;delete a.ay;delete a.arrow;
+  return a;
+}
+
+function renderCallouts(){
+  calLayer.innerHTML='';
+  annotations.forEach(function(a,i){
+    normalizeAnnotation(a);
+    var el=document.createElement('div');
+    el.className='ref-callout'+(i===selectedIdx?' selected':'');
+    el.dataset.align=a.textAlign||'left';
+    el.dataset.i=i;
+    el.style.left=a.tx+'%';
+    el.style.top=a.ty+'%';
+    if(a.text&&a.text.trim()){
+      var cap=document.createElement('div');
+      cap.className='cap';
+      cap.dataset.i=i;
+      cap.dataset.role='text-move';
+      cap.title='Metni sürüklemek için tut';
+      buildCapContent(cap,a.text,{titleUnderline:!!a.titleUnderline});
+      if(a.color)cap.style.color=a.color;
+      if(a.size)cap.style.fontSize=a.size+'px';
+      el.appendChild(cap);
+    }
+    calLayer.appendChild(el);
+  });
+  renderArrows();
+}
+
+function nearestRectPoint(px,py,L,T,R,B){
+  return {x:Math.max(L,Math.min(R,px)), y:Math.max(T,Math.min(B,py))};
+}
+function elbowMidpoint(ax,ay,cx,cy){
+  var dx=cx-ax, dy=cy-ay;
+  var ex=Math.abs(dx), ey=Math.abs(dy);
+  if(ex<0.5&&ey<0.5)return null;
+  var horiz=ex>=ey;
+  var sgnX=dx>=0?1:-1, sgnY=dy>=0?1:-1;
+  var inv=1/Math.sqrt(3);
+  if(horiz){
+    var d2=ey*2/Math.sqrt(3);
+    var d1=ex-ey*inv;
+    return {x:ax+d1*sgnX, y:ay};
+  }else{
+    var d2b=ex*2/Math.sqrt(3);
+    var d1b=ey-ex*inv;
+    return {x:ax, y:ay+d1b*sgnY};
+  }
+}
+function renderArrows(){
+  if(!arrowLayer)return;
+  var s=getSize();
+  arrowLayer.setAttribute('viewBox','0 0 '+s.w+' '+s.h);
+  arrowLayer.innerHTML='';
+  var rr=ref.getBoundingClientRect();
+  var scale=(rr.width>0)?(s.w/rr.width):1;
+  annotations.forEach(function(a,i){
+    var dotX=a.x/100*s.w, dotY=a.y/100*s.h;
+    var ex=a.tx/100*s.w, ey=a.ty/100*s.h;
+    var host=calLayer.querySelector('.ref-callout[data-i="'+i+'"] .cap');
+    if(host&&rr.width){
+      var tr=host.getBoundingClientRect();
+      var L=(tr.left-rr.left)*scale, T=(tr.top-rr.top)*scale;
+      var R=L+tr.width*scale, B=T+tr.height*scale;
+      var np=nearestRectPoint(dotX,dotY,L,T,R,B);
+      ex=np.x;ey=np.y;
+    }
+    var g=document.createElementNS(SVG_NS,'g');
+    g.setAttribute('class','arrow-group'+(i===selectedIdx?' selected':''));
+    g.setAttribute('data-i',i);
+    var mid=elbowMidpoint(dotX,dotY,ex,ey);
+    var pts;
+    if(mid){pts=dotX+','+dotY+' '+mid.x+','+mid.y+' '+ex+','+ey}
+    else{pts=dotX+','+dotY+' '+ex+','+ey}
+    var line=document.createElementNS(SVG_NS,'polyline');
+    line.setAttribute('points',pts);
+    line.setAttribute('class','arrow-line');
+    g.appendChild(line);
+    var dot=document.createElementNS(SVG_NS,'circle');
+    dot.setAttribute('cx',dotX);dot.setAttribute('cy',dotY);
+    dot.setAttribute('r',9);dot.setAttribute('class','arrow-dot');
+    g.appendChild(dot);
+    var hit=document.createElementNS(SVG_NS,'circle');
+    hit.setAttribute('cx',dotX);hit.setAttribute('cy',dotY);
+    hit.setAttribute('r',24);hit.setAttribute('class','arrow-hit');
+    hit.setAttribute('data-i',i);
+    hit.setAttribute('data-role','arrow-dot');
+    g.appendChild(hit);
+    arrowLayer.appendChild(g);
+  });
+}
+
+function renderCalList(){
+  calList.innerHTML='';
+  if(!annotations.length){
+    var e=document.createElement('div');
+    e.className='cal-empty';
+    e.textContent='Henüz işaret yok. "Yeni işaret ekle" ile başlayın.';
+    calList.appendChild(e);
+  }else{
+    annotations.forEach(function(a,i){
+      var item=document.createElement('div');
+      item.className='cal-item';
+      item.innerHTML=''+
+        '<div class="cal-item-head"><span class="idx">İşaret '+(i+1)+'</span>'+
+        '<button type="button" class="cal-del" data-i="'+i+'">Sil</button></div>'+
+        '<textarea data-i="'+i+'" data-k="text" rows="4" placeholder="Başlık satırı&#10;- Madde işareti için satır başına -">'+escHtml(a.text)+'</textarea>'+
+        '<div class="cal-hint">Her satır ayrı bloktur. Satır başına <code>-</code>, <code>•</code> veya <code>*</code> koyarsanız otomatik madde işaretli olur. Önizlemede noktayı ve metni doğrudan sürükleyebilirsiniz.</div>'+
+        '<div class="cal-grid cal-grid-2">'+
+          '<label>Nokta X %<input type="number" min="0" max="100" step="1" data-i="'+i+'" data-k="x" value="'+a.x+'"></label>'+
+          '<label>Nokta Y %<input type="number" min="0" max="100" step="1" data-i="'+i+'" data-k="y" value="'+a.y+'"></label>'+
+          '<label>Metin X %<input type="number" min="0" max="100" step="1" data-i="'+i+'" data-k="tx" value="'+a.tx+'"></label>'+
+          '<label>Metin Y %<input type="number" min="0" max="100" step="1" data-i="'+i+'" data-k="ty" value="'+a.ty+'"></label>'+
+        '</div>'+
+        '<div class="cal-row"><span class="cal-row-label">Metin hizası</span>'+
+          '<div class="cal-align" data-i="'+i+'">'+
+            ['left','center','right'].map(function(s){
+              var lbl={left:'Sol',center:'Orta',right:'Sağ'}[s];
+              var active=(a.textAlign||'left')===s;
+              return '<button type="button" data-align="'+s+'"'+(active?' class="active"':'')+'>'+lbl+'</button>';
+            }).join('')+
+          '</div>'+
+        '</div>'+
+        '<label class="cal-toggle"><input type="checkbox" data-i="'+i+'" data-k="titleUnderline"'+(a.titleUnderline?' checked':'')+'><span>Başlık satırının altına yeşil çizgi</span></label>'+
+        '<div class="cal-color"><label>Yazı rengi '+(a.color?'':'<span class="auto-tag">otomatik</span>')+'</label>'+
+          '<input type="color" data-i="'+i+'" data-k="color" value="'+(a.color||'#FFFFFF')+'">'+
+          '<button type="button" class="cal-color-reset" data-i="'+i+'" title="Temaya göre">Otomatik</button>'+
+        '</div>'+
+        '<div class="cal-size">'+
+          '<label>Yazı boyutu <span class="v" data-v="'+i+'">'+(a.size||22)+' px</span></label>'+
+          '<input type="range" min="12" max="64" step="1" data-i="'+i+'" data-k="size" value="'+(a.size||22)+'">'+
+        '</div>';
+      calList.appendChild(item);
+    });
+  }
+  btnCalAdd.disabled=annotations.length>=MAX_CALLOUTS;
+  btnCalAdd.textContent=annotations.length>=MAX_CALLOUTS?'Üst sınıra ulaşıldı ('+MAX_CALLOUTS+')':'+ Yeni işaret ekle';
+}
+
+btnCalAdd.addEventListener('click',function(){
+  if(annotations.length>=MAX_CALLOUTS)return;
+  annotations.push({text:'Başlık satırı\n- Madde bir\n- Madde iki',x:35,y:50,tx:65,ty:50,color:'',size:22,textAlign:'left',titleUnderline:false});
+  renderCalList();
+  renderCallouts();
+});
+
+calList.addEventListener('input',function(e){
+  var t=e.target;
+  var i=t.dataset.i;if(i==null)return;
+  i=+i;var a=annotations[i];if(!a)return;
+  var k=t.dataset.k;
+  if(k==='text'){a.text=t.value}
+  else if(k==='x'||k==='y'||k==='tx'||k==='ty'){a[k]=clamp(t.value,0,100)}
+  else if(k==='color'){a.color=t.value}
+  else if(k==='titleUnderline'){a.titleUnderline=!!t.checked}
+  else if(k==='size'){
+    a.size=clamp(t.value,12,64);
+    var lbl=calList.querySelector('.cal-size .v[data-v="'+i+'"]');
+    if(lbl)lbl.textContent=a.size+' px';
+  }
+  renderCallouts();
+});
+
+// Önizleme üzerinde nokta ve metin sürükle
+(function(){
+  var drag=null;
+  function onMove(e){
+    if(!drag)return;
+    var a=annotations[drag.i];if(!a)return;
+    var dxPct=(e.clientX-drag.sx)/drag.rect.width*100;
+    var dyPct=(e.clientY-drag.sy)/drag.rect.height*100;
+    if(drag.role==='text-move'){
+      a.tx=clamp(drag.tx+dxPct,0,100);
+      a.ty=clamp(drag.ty+dyPct,0,100);
+      var el=calLayer.querySelector('.ref-callout[data-i="'+drag.i+'"]');
+      if(el){el.style.left=a.tx+'%';el.style.top=a.ty+'%'}
+    }else if(drag.role==='arrow-dot'){
+      a.x=clamp(drag.x+dxPct,0,100);
+      a.y=clamp(drag.y+dyPct,0,100);
+    }
+    renderArrows();
+    e.preventDefault&&e.preventDefault();
+  }
+  function onUp(){
+    if(!drag)return;
+    drag=null;
+    document.body.style.userSelect='';
+    window.removeEventListener('pointermove',onMove);
+    window.removeEventListener('pointerup',onUp);
+    window.removeEventListener('pointercancel',onUp);
+    renderCalList();
+  }
+  function startDrag(e,role,i){
+    var a=annotations[i];if(!a)return;
+    var rect=ref.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    selectedIdx=i;
+    calLayer.querySelectorAll('.ref-callout.selected').forEach(function(n){n.classList.remove('selected')});
+    var host=calLayer.querySelector('.ref-callout[data-i="'+i+'"]');
+    if(host)host.classList.add('selected');
+    if(arrowLayer){
+      arrowLayer.querySelectorAll('.arrow-group.selected').forEach(function(n){n.classList.remove('selected')});
+      var g=arrowLayer.querySelector('.arrow-group[data-i="'+i+'"]');
+      if(g)g.classList.add('selected');
+    }
+    drag={i:i,role:role,rect:rect,sx:e.clientX,sy:e.clientY,x:a.x,y:a.y,tx:a.tx,ty:a.ty};
+    document.body.style.userSelect='none';
+    window.addEventListener('pointermove',onMove);
+    window.addEventListener('pointerup',onUp);
+    window.addEventListener('pointercancel',onUp);
+    e.preventDefault();e.stopPropagation();
+  }
+  calLayer.addEventListener('pointerdown',function(e){
+    var t=e.target;
+    var host=t.closest('.cap');
+    if(!host)return;
+    var i=+host.dataset.i;
+    if(isNaN(i)||!annotations[i])return;
+    startDrag(e,'text-move',i);
+  });
+  arrowLayer&&arrowLayer.addEventListener('pointerdown',function(e){
+    var t=e.target;
+    if(!t||t.getAttribute('data-role')!=='arrow-dot')return;
+    var i=+t.getAttribute('data-i');
+    if(isNaN(i)||!annotations[i])return;
+    startDrag(e,'arrow-dot',i);
+  });
+})();
+
+calList.addEventListener('click',function(e){
+  var del=e.target.closest('.cal-del');
+  if(del){
+    var i=+del.dataset.i;
+    annotations.splice(i,1);
+    if(selectedIdx===i)selectedIdx=-1;
+    else if(selectedIdx>i)selectedIdx--;
+    renderCalList();
+    renderCallouts();
+    return;
+  }
+  var alignBtn=e.target.closest('.cal-align button');
+  if(alignBtn){
+    var wrap2=alignBtn.parentElement;
+    var iA=+wrap2.dataset.i;
+    if(annotations[iA]){
+      annotations[iA].textAlign=alignBtn.dataset.align;
+      wrap2.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b===alignBtn)});
+      renderCallouts();
+    }
+  }
+  var resetBtn=e.target.closest('.cal-color-reset');
+  if(resetBtn){
+    var i3=+resetBtn.dataset.i;
+    if(annotations[i3]){
+      annotations[i3].color='';
+      renderCalList();
+      renderCallouts();
+    }
+  }
+});
 
 function getSize(){return SIZES[document.getElementById('fSize').value]||SIZES.hd}
 function applyThemeClass(name){
@@ -270,6 +673,7 @@ function setCanvasSize(){
   var s=SIZES[k];
   ref.style.width=s.w+'px';
   ref.style.height=s.h+'px';
+  renderArrows();
   scalePreview();
   updateExportLabel();
 }
@@ -380,6 +784,10 @@ document.getElementById('btnReset').addEventListener('click',function(){
   document.querySelectorAll('.theme-chip').forEach(function(c){c.classList.toggle('active',c.dataset.theme==='corporate')});
   applyThemeClass('corporate');
   document.getElementById('fSize').value='hd';
+  annotations=[];
+  selectedIdx=-1;
+  renderCalList();
+  renderCallouts();
   updateVars();
   updateText();
   setCanvasSize();
@@ -400,6 +808,7 @@ document.getElementById('btnExport').addEventListener('click',async function(){
   scaler.style.transform='none';
   scaler.style.transformOrigin='top left';
   scaler.style.marginBottom='0';
+  document.body.classList.add('exporting');
   await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r)})});
   try{
     if(document.fonts&&document.fonts.ready)await document.fonts.ready;
@@ -437,6 +846,7 @@ document.getElementById('btnExport').addEventListener('click',async function(){
     scaler.style.transform=savedT;
     scaler.style.transformOrigin=savedO;
     scaler.style.marginBottom=savedM;
+    document.body.classList.remove('exporting');
     btn.disabled=false;
     updateExportLabel();
   }
@@ -445,6 +855,8 @@ document.getElementById('btnExport').addEventListener('click',async function(){
 applyThemeClass('corporate');
 updateVars();
 updateText();
+renderCalList();
+renderCallouts();
 setCanvasSize();
 scalePreview();
 })();
