@@ -131,7 +131,7 @@ body {
 .field label {
   font-size: 12px; font-weight: 600; color: var(--muted);
 }
-.field input, .field textarea, .field select {
+.field input:not([type=checkbox]), .field textarea, .field select {
   font-family: var(--font-ui);
   font-size: 13px; color: var(--text);
   background: #f7f8fa;
@@ -142,12 +142,29 @@ body {
   transition: border-color .15s, box-shadow .15s;
   resize: vertical;
 }
-.field input:focus, .field textarea:focus, .field select:focus {
+.field input:not([type=checkbox]):focus, .field textarea:focus, .field select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(75,45,127,.08);
   background: #fff;
 }
 .field textarea { min-height: 72px; }
+.field input[type=checkbox] {
+  width: 16px; height: 16px;
+  margin: 0; padding: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+  vertical-align: middle;
+}
+.field label:has(> input[type=checkbox]) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text);
+  line-height: 1.35;
+}
 
 /* — image upload — */
 .img-drop {
@@ -243,6 +260,45 @@ body {
 }
 .canvas-scaler {
   transform-origin: top center;
+}
+
+@media (max-width: 900px) {
+  .header {
+    height: auto;
+    min-height: 52px;
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    align-items: center;
+  }
+  .header-brand { flex: 1 1 auto; min-width: 0; font-size: 13px; }
+  .header-actions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .header-actions .btn { padding: 8px 12px; font-size: 12px; }
+  .header-actions .btn-primary { flex: 1 1 auto; min-width: min(140px, 100%); }
+  .app-nav { flex: 1 1 100%; justify-content: center; order: 3; }
+  .workspace {
+    grid-template-columns: 1fr;
+    overflow: visible;
+    min-height: 0;
+  }
+  .panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+    order: 1;
+  }
+  .preview-area {
+    order: 2;
+    padding: 16px 12px 28px;
+    min-height: min(52vh, 520px);
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* ══════════════════════════════════════
@@ -515,6 +571,9 @@ body {
           <label>Açıklama</label>
           <textarea id="fSub" placeholder="DSP ile akıllı kontrol; float, equalize ve boost şarj.">DSP ile akıllı kontrol; float, equalize ve boost şarj.</textarea>
         </div>
+        <div class="field">
+          <label><input type="checkbox" id="chkLogo" checked> Logo göster (üst blok)</label>
+        </div>
       </div>
     </div>
 
@@ -676,14 +735,22 @@ body {
 function scaleCanvas() {
   var area = document.getElementById('previewArea');
   var scaler = document.getElementById('scaler');
-  var availW = area.clientWidth - 48;
-  var availH = window.innerHeight - 56 - 60;
-  var scale = Math.min(availW / 1080, availH / 1350, 0.65);
+  var cw = document.documentElement.clientWidth || window.innerWidth;
+  var narrow = cw <= 900;
+  var availW = Math.max(area.clientWidth - (narrow ? 28 : 48), 100);
+  var availH = narrow
+    ? Math.max(window.innerHeight * 0.5 - 24, 200)
+    : Math.max(window.innerHeight - 140, 280);
+  var cap = narrow ? 0.92 : 0.65;
+  var scale = Math.min(availW / 1080, availH / 1350, cap);
   scaler.style.transform = 'scale(' + scale + ')';
   scaler.style.transformOrigin = 'top center';
   scaler.style.marginBottom = (1350 * scale - 1350) + 'px';
 }
 window.addEventListener('resize', scaleCanvas);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', scaleCanvas);
+}
 scaleCanvas();
 
 /* ── Hazır temalar ── */
@@ -814,6 +881,11 @@ function updateCanvas() {
     li.style.color = cSub;
     ul.appendChild(li);
   });
+
+  var logoEl = canvas.querySelector('.li-logo');
+  if (logoEl) {
+    logoEl.style.display = document.getElementById('chkLogo').checked ? '' : 'none';
+  }
 }
 
 /* ── Giriş dinleyicileri ── */
@@ -829,6 +901,7 @@ function updateCanvas() {
   });
 });
 document.getElementById('bulletsList').addEventListener('input', updateCanvas);
+document.getElementById('chkLogo').addEventListener('change', updateCanvas);
 
 /* ── Görsel yükleme ── */
 var bgFile = document.getElementById('bgFile');
@@ -890,6 +963,7 @@ function resetForm() {
   document.getElementById('li-bg-placeholder').style.display = 'flex';
   document.getElementById('bgThumb').src = '';
   document.getElementById('bgThumb').style.display = 'none';
+  document.getElementById('chkLogo').checked = true;
   applyTheme('classic');
 }
 

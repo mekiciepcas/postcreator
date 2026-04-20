@@ -172,6 +172,19 @@ body.exporting #arrowLayer .arrow-group.selected .arrow-dot{stroke-width:2 !impo
 .btn-add:hover{background:rgba(75,45,127,.04);border-color:var(--accent)}
 .btn-add:disabled{opacity:.5;cursor:not-allowed}
 
+@media(max-width:900px){
+.header{height:auto;min-height:52px;padding:10px 12px;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.header-brand{flex:1 1 auto;min-width:0;font-size:13px}
+.header-actions{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.header-actions .btn{padding:8px 12px;font-size:12px}
+.header-actions .btn-primary{flex:1 1 auto;min-width:min(140px,100%)}
+.app-nav{flex:1 1 100%;justify-content:center;order:3}
+.workspace{grid-template-columns:1fr;overflow:visible;min-height:0}
+.panel{border-right:none;border-bottom:1px solid var(--border);padding:16px;order:1;max-height:none}
+.preview-area{order:2;padding:16px 12px 28px;min-height:min(48vh,480px);-webkit-overflow-scrolling:touch}
+.cal-grid{grid-template-columns:repeat(2,1fr)}
+}
+
 .crop-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(15,20,28,.65);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
 .crop-modal.open{display:flex}
 .crop-box{background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;overflow:auto;padding:16px}
@@ -680,14 +693,18 @@ function setCanvasSize(){
 function scalePreview(){
   var area=document.getElementById('previewArea');
   var s=getSize();
-  var aw=area.clientWidth-48;
-  var ah=window.innerHeight-120;
-  var sc=Math.min(aw/s.w,ah/s.h,0.42);
+  var cw=document.documentElement.clientWidth||window.innerWidth;
+  var narrow=cw<=900;
+  var aw=Math.max(area.clientWidth-(narrow?28:48),80);
+  var ah=narrow?Math.max(window.innerHeight*0.45-20,160):Math.max(window.innerHeight-120,240);
+  var cap=narrow?0.88:0.42;
+  var sc=Math.min(aw/s.w,ah/s.h,cap);
   scaler.style.transform='scale('+sc+')';
   scaler.style.transformOrigin='top center';
   scaler.style.marginBottom=(s.h*sc-s.h)+'px';
 }
 window.addEventListener('resize',scalePreview);
+if(window.visualViewport){window.visualViewport.addEventListener('resize',scalePreview)}
 
 document.getElementById('fSize').addEventListener('change',setCanvasSize);
 ['sScrim','sVig','sRim','sBright','sCont'].forEach(function(id){
